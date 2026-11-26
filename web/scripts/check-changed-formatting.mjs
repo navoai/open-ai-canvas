@@ -6,7 +6,7 @@ import * as prettier from "prettier";
 
 export async function checkChangedFormatting({ cwd = process.cwd(), baseSha = process.env.BASE_SHA, headSha = process.env.GITHUB_SHA || "HEAD", log = console.log } = {}) {
     const git = (args) => {
-        const result = spawnSync("git", args, { cwd, encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+        const result = spawnSync("git", args, { cwd, encoding: "utf8", maxBuffer: 32 * 1024 * 1024, windowsHide: true });
         if (result.error) throw result.error;
         if (result.status !== 0) throw new Error(`git ${args.join(" ")}: ${result.stderr}`);
         return result.stdout;
@@ -18,7 +18,7 @@ export async function checkChangedFormatting({ cwd = process.cwd(), baseSha = pr
         // 强制改写提交历史后，push 事件里的 before 可能已不在 checkout 中；
         // 对合法但失效的 SHA 退回当前父提交，仍校验本次提交的完整改动。
         if (!/^[0-9a-f]{40}$/i.test(baseSha)) throw new Error(`Invalid base SHA: ${baseSha}`);
-        const resolved = spawnSync("git", ["rev-parse", "--verify", `${baseSha}^{commit}`], { cwd, encoding: "utf8" });
+        const resolved = spawnSync("git", ["rev-parse", "--verify", `${baseSha}^{commit}`], { cwd, encoding: "utf8", windowsHide: true });
         if (resolved.status === 0) {
             base = resolved.stdout.trim();
         } else {

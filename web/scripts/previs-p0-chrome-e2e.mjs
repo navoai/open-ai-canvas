@@ -82,6 +82,7 @@ async function launchVite(port) {
     const args = process.versions.bun ? ["vite"] : [viteEntry];
     const child = spawn(command, [...args, "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
         cwd: process.cwd(),
+        windowsHide: true,
         stdio: ["ignore", "pipe", "pipe"],
     });
     let log = "";
@@ -122,7 +123,7 @@ async function launchChrome(chromePath, cdpPort, profileDir) {
     if (process.platform === "linux" || process.env.CI) args.push("--no-sandbox", "--disable-dev-shm-usage");
     args.push("about:blank");
 
-    const child = spawn(chromePath, args, { stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(chromePath, args, { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
     let log = "";
     child.stdout.on("data", (d) => {
         log += d.toString();
