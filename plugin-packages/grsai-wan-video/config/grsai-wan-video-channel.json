@@ -1,0 +1,71 @@
+{
+  "format": "yingce.system-channels",
+  "version": 1,
+  "channels": [
+    {
+      "websiteName": "Grsai · 全球",
+      "name": "Grsai Wan 3.0 · 全球",
+      "baseUrl": "https://grsaiapi.com",
+      "apiFormat": "openai",
+      "mediaTransport": { "image": "protocol", "audio": "protocol", "video": "protocol" },
+      "enabled": false,
+      "concurrencyLimit": 1,
+      "models": [
+        {
+          "modelKey": "wan-3.0",
+          "providerModelKey": "wan-3.0",
+          "displayName": "Wan 3.0 · Grsai",
+          "capability": "video",
+          "protocol": "grsai-wan-video",
+          "description": "全球节点，异步生成。渠道、模型和价格档默认停用；请配置凭据，并按实际合同分别填写有、无参考视频的售价及成本后再启用。上游 credits 不等于影策积分。",
+          "enabled": false,
+          "billingMode": "per_second",
+          "priceConfigured": false,
+          "referenceVideoBilling": true,
+          "capabilityConfig": {
+            "version": 1,
+            "video": {
+              "references": {
+                "promptMaxChars": 8000,
+                "minImages": 0,
+                "maxImages": 10,
+                "maxImageBytes": 0,
+                "maxVideos": 5,
+                "maxVideoBytes": 0,
+                "maxTotalVideoDurationSeconds": 15,
+                "maxAudios": 5,
+                "maxAudioBytes": 0
+              },
+              "duration": { "selection": "range", "min": 2, "max": 30, "step": 1, "default": 5 },
+              "ratios": ["16:9", "9:16", "21:9", "4:3", "1:1", "3:4"],
+              "defaultRatio": "16:9",
+              "resolutions": ["480p", "720p", "1080p"],
+              "defaultResolution": "720p",
+              "generateAudio": { "supported": false, "default": false },
+              "watermark": { "supported": false, "default": false },
+              "operations": ["text_to_video", "image_to_video", "reference_to_video", "audio_to_video"],
+              "defaultOperation": "text_to_video"
+            }
+          },
+          "priceTiers": [
+            {
+              "selector": { "vquality": "480p" }, "resolution": "480p", "videoSeconds": 0,
+              "providerModelKey": "wan-3.0", "billingMode": "per_second",
+              "enabled": false, "priceConfigured": false, "costPricing": { "configured": false }
+            },
+            {
+              "selector": { "vquality": "720p" }, "resolution": "720p", "videoSeconds": 0,
+              "providerModelKey": "wan-3.0", "billingMode": "per_second",
+              "enabled": false, "priceConfigured": false, "costPricing": { "configured": false }
+            },
+            {
+              "selector": { "vquality": "1080p" }, "resolution": "1080p", "videoSeconds": 0,
+              "providerModelKey": "wan-3.0", "billingMode": "per_second",
+              "enabled": false, "priceConfigured": false, "costPricing": { "configured": false }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

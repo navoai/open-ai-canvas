@@ -1,5 +1,16 @@
 [
   {
+    "provider": "grsai-wan-video", "models": ["wan-3.0"],
+    "video": {
+      "references":{"promptMaxChars":8000,"minImages":0,"maxImages":10,"maxImageBytes":0,"maxVideos":5,"maxVideoBytes":0,"maxTotalVideoDurationSeconds":15,"maxAudios":5,"maxAudioBytes":0},
+      "duration":{"selection":"range","min":2,"max":30,"step":1,"default":5},
+      "ratios":["16:9","9:16","21:9","4:3","1:1","3:4"],"defaultRatio":"16:9",
+      "resolutions":["480p","720p","1080p"],"defaultResolution":"720p",
+      "generateAudio":{"supported":false,"default":false},"watermark":{"supported":false,"default":false},
+      "operations":["text_to_video","image_to_video","reference_to_video","audio_to_video"],"defaultOperation":"text_to_video"
+    }
+  },
+  {
     "provider": "dashscope-wan3-video", "models": ["", "wan3.0-video", "wan3.0-video-prime"],
     "video": {
       "references": {"promptMaxChars":20000,"minImages":0,"maxImages":10,"maxImageBytes":20000000,"maxVideos":5,"maxVideoBytes":100000000,"maxTotalVideoDurationSeconds":15,"maxAudios":5,"maxAudioBytes":15000000,"maxTotalAudioDurationSeconds":15},

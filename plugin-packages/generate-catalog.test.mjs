@@ -15,7 +15,7 @@ const normalize = (value) => value.replace(/\r\n?/g, "\n").trimEnd();
 async function fixture(t) {
   const temp = await mkdtemp(join(tmpdir(), "yingce-catalog-"));
   t.after(() => rm(temp, { recursive: true, force: true }));
-  for (const name of ["generate-catalog.mjs", "embed-documentation.mjs", "package-directories.mjs", "kling-v4-official/protocol.mjs", "kling-v4-official/video-modes.json", "sensenova-image/protocol.mjs"]) {
+  for (const name of ["generate-catalog.mjs", "embed-documentation.mjs", "package-directories.mjs", "kling-v4-official/protocol.mjs", "kling-v4-official/video-modes.json", "sensenova-image/protocol.mjs", "grsai-wan-video/protocol.mjs"]) {
     await cp(join(root, name), join(temp, name));
   }
   const ids = [];
@@ -114,6 +114,17 @@ test("unknown selections fail before writing any package", async (t) => {
   const before = await snapshot(temp);
   assert.throws(() => generate(temp, ["ollama-chat", "does-not-exist"]), /unknown protocol package/);
   assert.deepEqual(await snapshot(temp), before);
+});
+
+test("Grsai Wan can be regenerated from its standalone source", async (t) => {
+  const { temp } = await fixture(t);
+  const id = "grsai-wan-video";
+  generate(temp, [id]);
+  for (const name of ["manifest.json", "README.md", "docs/interface.md"]) {
+    const generated = await readFile(join(temp, id, name), "utf8");
+    const published = await readFile(join(root, id, name), "utf8");
+    assert.equal(normalize(generated), normalize(published), `stale Grsai package source: ${name}`);
+  }
 });
 
 test("Seedream regeneration preserves the published layer decomposition contract", async (t) => {

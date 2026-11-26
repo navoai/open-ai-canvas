@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -186,6 +187,7 @@ func TestNormalizeVideoCapabilityInheritsTotalReferenceDurationsFromPreset(t *te
 		audioSeconds int
 	}{
 		{"dashscope-wan3-video", "wan3.0-video", 15, 15},
+		{"grsai-wan-video", "wan-3.0", 15, 0},
 		{"volcengine-ark-video", "doubao-seedance-2-0-mini-260615", 15, 15},
 		{"volcengine-ark-seedance-25", "doubao-seedance-2-5-260628", 30, 30},
 		{"kling-v4-official", "kling-4.0-flash", 20, 0},
@@ -435,6 +437,32 @@ func TestOfficialVideoModelPresetsAreModelSpecific(t *testing.T) {
 		if _, err := NormalizeModelCapabilityConfigForModel("video", tc.provider, tc.name, profile); err != nil {
 			t.Errorf("%s: %v", tc.name, err)
 		}
+	}
+}
+
+func TestGrsaiWanVideoPreset(t *testing.T) {
+	const provider, modelName = "grsai-wan-video", "wan-3.0"
+	profile := DefaultModelCapabilityConfigForModel(provider, modelName)
+	normalized, err := NormalizeModelCapabilityConfigForModel("video", provider, modelName, profile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := normalized.Video
+	if !slices.Equal(v.Resolutions, []string{"480p", "720p", "1080p"}) || v.DefaultResolution != "720p" ||
+		!slices.Equal(v.Ratios, []string{"16:9", "9:16", "21:9", "4:3", "1:1", "3:4"}) || v.DefaultRatio != "16:9" ||
+		v.Duration.Selection != "range" || v.Duration.Min != 2 || v.Duration.Max != 30 || v.Duration.Step != 1 || v.Duration.Default != 5 {
+		t.Fatalf("unexpected wan-3.0 output choices: %+v", v)
+	}
+	if !slices.Equal(v.Operations, []string{"text_to_video", "image_to_video", "reference_to_video", "audio_to_video"}) ||
+		v.DefaultOperation != "text_to_video" || v.GenerateAudio.Supported || v.Watermark.Supported {
+		t.Fatalf("unexpected wan-3.0 modes or switches: %+v", v)
+	}
+	r := v.References
+	if r.MaxImages != 10 || r.MaxVideos != 5 || r.MaxAudios != 5 || r.MaxImageBytes != 0 || r.MaxVideoBytes != 0 || r.MaxAudioBytes != 0 || r.PromptMaxChars != DefaultVideoPromptMaxChars {
+		t.Fatalf("unexpected wan-3.0 reference limits: %+v", r)
+	}
+	if officialVideoPreset(provider, "wan3.0-video") != nil || officialVideoPreset("dashscope-wan3-video", modelName) != nil {
+		t.Fatal("Grsai and DashScope WAN models must not share a preset")
 	}
 }
 

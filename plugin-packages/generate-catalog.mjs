@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { packageDirectories } from "./package-directories.mjs";
 import { klingV4Spec } from "./kling-v4-official/protocol.mjs";
 import { sensenovaImageSpec } from "./sensenova-image/protocol.mjs";
+import { grsaiWanVideoSpec } from "./grsai-wan-video/protocol.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const scopes = ["admin.system-channel", "user.custom-channel", "canvas", "creation", "agent"];
@@ -1140,6 +1141,8 @@ add({
   notes: `适配阿里云百炼 MiniMax/MiniMax-H3，渠道 Base URL 使用百炼业务空间 Endpoint。\n\n首帧、尾帧各最多 1 张，支持仅尾帧；首尾帧与多模态参考互斥。参考图最多 9 张、每张 30 MB，JPG/JPEG/PNG/WEBP/HEIC/HEIF，宽高 256-5760、宽高比 0.4-2.5。参考视频最多 3 个、每个 50 MB、2-15 秒且总时长不超过 15 秒，MP4/MOV、23.976-60 fps，宽高和比例限制同图片。音频最多 3 个、每个 15 MB、2-15 秒且总时长不超过 15 秒，WAV/MP3。插件校验已提供的角色、数量、URL、提示词和生成规格；媒体编码、尺寸、帧率及参考总时长仍需满足上游限制，不在协议模板内执行媒体探测。\n\n不发送原生 content[]、generate_audio、seed 或 prompt_optimizer，也不开放绕过统一媒体校验的 raw media 扩展。创建任务后仅轮询原 task_id，UNKNOWN 终止为失败；任务查询有效期 24 小时，结果 URL 有效期 30 天，宿主持久化临时结果。usage 保留输入视频、输出视频和图片计数，不把供应商统计直接改写为本地计费规则。\n\n官方接口：[MiniMax 视频生成 API](https://docs.bailian.console.aliyun.com/zh/model-studio/minimax-video-generation-api-reference)。`
 });
 
+add(grsaiWanVideoSpec({ ref, omit, coalesce, addNumbers, map, filter, eq, ne, gt, gte, lte, and, len, lower, trim, toInt, split, conditional, first, sorted, bearer, jsonCreate }));
+
 const wan3MediaType = coalesce(
   conditional({ $in: [ref("media.role"), ["subject_reference", "style_reference"]] }, "reference_image", conditional(eq(ref("media.role"), "reference_voice"), "reference_audio", ref("media.role"))),
   conditional(eq(ref("media.kind"), "image"), "reference_image", conditional(
@@ -1449,7 +1452,7 @@ function manifestFor(spec) {
     id: spec.id,
     name: spec.name,
     version: spec.version || "2.0.0",
-    author: `${spec.vendor} / 影策`,
+    author: spec.author ?? `${spec.vendor} / 影策`,
     description: spec.description || `${spec.name} 独立请求协议插件。`,
     documentation: `# ${spec.name}\n\n完整字段、映射、响应、鉴权和兼容边界见包内 README.md 与 docs/interface.md。\n\n## 影策运行时合同\n\n用户只操作统一的文本、图片或视频能力；插件负责把统一请求转换为 ${spec.name} 上游协议。`,
     permissions: ["generation.run", "media.read"],
